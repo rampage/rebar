@@ -65,7 +65,7 @@ detect_qc_lib() ->
         {module, PropEr} ->
             PropEr;
         {error, nofile} ->
-            case code:ensure_loaded(qc) of
+            case code:ensure_loaded(eqc) of
                 {module, EQC} ->
                     EQC;
                 {error, nofile} ->
