@@ -87,12 +87,12 @@ run(Config, QC, QCOpts) ->
     ok = filelib:ensure_dir(?QC_DIR ++ "/foo"),
     CodePath = setup_codepath(),
     ok = qc_compile(Config),
-    case [QC:module(QCOpts, M) || M <- find_prop_mods()] of
+    case lists:flatten([QC:module(QCOpts, M) || M <- find_prop_mods()]) of
         [] ->
             true = code:set_path(CodePath),
             ok;
         Errors ->
-            ?ABORT("~p~n", [hd(Errors)])
+            ?ABORT("One or more QC properties failed:~n~p~n", [Errors])
     end.
 
 find_prop_mods() ->
