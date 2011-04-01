@@ -92,7 +92,7 @@ run(Config, QC, QCOpts) ->
             true = code:set_path(CodePath),
             ok;
         Errors ->
-            ?ABORT("One or more QC properties failed:~n~p~n", [Errors])
+            ?ABORT("One or more QC properties didn't hold true:~n~p~n", [Errors])
     end.
 
 find_prop_mods() ->
