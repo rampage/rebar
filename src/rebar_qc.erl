@@ -46,6 +46,8 @@ qc(Config, _AppFile) ->
 %% ===================================================================
 
 -define(QC_DIR, ".qc").
+-define(PROPER_MOD, proper).
+-define(EQC_MOD, eqc).
 
 select_qc_lib(QCOpts) ->
     case proplists:get_value(qc_lib, QCOpts) of
@@ -61,13 +63,13 @@ select_qc_lib(QCOpts) ->
     end.
 
 detect_qc_lib() ->
-    case code:ensure_loaded(proper) of
-        {module, PropEr} ->
-            PropEr;
+    case code:ensure_loaded(?PROPER_MOD) of
+        {module, ?PROPER_MOD} ->
+            ?PROPER_MOD;
         {error, nofile} ->
-            case code:ensure_loaded(eqc) of
-                {module, EQC} ->
-                    EQC;
+            case code:ensure_loaded(?EQC_MOD) of
+                {module, ?EQC_MOD} ->
+                    ?EQC_MOD;
                 {error, nofile} ->
                     ?ABORT("No QC library available~n", [])
             end
