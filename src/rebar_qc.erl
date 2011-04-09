@@ -92,7 +92,8 @@ run(Config, QC, QCOpts) ->
             true = code:set_path(CodePath),
             ok;
         Errors ->
-            ?ABORT("One or more QC properties didn't hold true:~n~p~n", [Errors])
+            ?ABORT("One or more QC properties didn't hold true:~n~p~n",
+                   [Errors])
     end.
 
 qc_module(QC=proper, QCOpts, M) -> QC:module(M, QCOpts);
