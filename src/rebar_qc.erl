@@ -87,13 +87,16 @@ run(Config, QC, QCOpts) ->
     ok = filelib:ensure_dir(?QC_DIR ++ "/foo"),
     CodePath = setup_codepath(),
     ok = qc_compile(Config),
-    case lists:flatten([QC:module(QCOpts, M) || M <- find_prop_mods()]) of
+    case lists:flatten([qc_module(QC, QCOpts, M) || M <- find_prop_mods()]) of
         [] ->
             true = code:set_path(CodePath),
             ok;
         Errors ->
             ?ABORT("One or more QC properties didn't hold true:~n~p~n", [Errors])
     end.
+
+qc_module(QC=proper, QCOpts, M) -> QC:module(M, QCOpts);
+qc_module(QC=eqc, QCOpts, M) -> QC:module(QCOpts, M).
 
 find_prop_mods() ->
     Beams = rebar_utils:find_files(?QC_DIR, ".*\\.beam\$"),
