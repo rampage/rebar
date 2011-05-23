@@ -123,21 +123,21 @@ compile(Config, AppFile) ->
             %% Only relink if necessary, given the SoName
             %% and list of new binaries
             lists:foreach(
-                    fun({SoName,Bins}) ->
-                            AllBins = [sets:from_list(Bins),
-                                       sets:from_list(NewBins)],
-                            NewBins1 = sets:intersection(AllBins),
-                            case needs_link(SoName, sets:to_list(NewBins1)) of
-                                true ->
-                                    Cmd = expand_command("LINK_TEMPLATE", Env,
-                                                         string:join(Bins, " "),
-                                                         SoName),
-                                    rebar_utils:sh(Cmd, [{env, Env}]);
-                                false ->
-                                    ?INFO("Skipping relink of ~s\n", [SoName]),
-                                    ok
-                            end
-                    end, SoSpecs)
+              fun({SoName,Bins}) ->
+                      AllBins = [sets:from_list(Bins),
+                                 sets:from_list(NewBins)],
+                      Intersection = sets:intersection(AllBins),
+                      case needs_link(SoName, sets:to_list(Intersection)) of
+                          true ->
+                              Cmd = expand_command("LINK_TEMPLATE", Env,
+                                                   string:join(Bins, " "),
+                                                   SoName),
+                              rebar_utils:sh(Cmd, [{env, Env}]);
+                          false ->
+                              ?INFO("Skipping relink of ~s\n", [SoName]),
+                              ok
+                      end
+              end, SoSpecs)
     end.
 
 clean(Config, AppFile) ->
@@ -284,16 +284,16 @@ compiler(_)      -> "$CC".
 %%
 apply_defaults(Vars, Defaults) ->
     dict:to_list(
-           dict:merge(fun(Key, VarValue, DefaultValue) ->
-                              case is_expandable(DefaultValue) of
-                                  true ->
-                                      expand_env_variable(DefaultValue,
-                                                          Key, VarValue);
-                                  false -> VarValue
-                              end
-                      end,
-                      dict:from_list(Vars),
-                      dict:from_list(Defaults))).
+        dict:merge(fun(Key, VarValue, DefaultValue) ->
+                        case is_expandable(DefaultValue) of
+                             true ->
+                                 expand_env_variable(DefaultValue,
+                                                     Key, VarValue);
+                             false -> VarValue
+                        end
+                    end,
+                    dict:from_list(Vars),
+                    dict:from_list(Defaults))).
 %%
 %% Given a list of {Key, Value} environment variables, where Key may be defined
 %% multiple times, walk the list and expand each self-reference so that we
@@ -339,16 +339,16 @@ expand_vars_loop(Vars0, Count) ->
 %%
 expand_vars(Key, Value, Vars) ->
     lists:foldl(
-            fun({AKey, AValue}, Acc) ->
-                    NewValue = case AKey of
-                                   Key ->
-                                       AValue;
-                                   _ ->
-                                       expand_env_variable(AValue, Key, Value)
-                               end,
-                    [{AKey, NewValue} | Acc]
-            end,
-            [], Vars).
+      fun({AKey, AValue}, Acc) ->
+              NewValue = case AKey of
+                             Key ->
+                                 AValue;
+                             _ ->
+                                 expand_env_variable(AValue, Key, Value)
+                         end,
+              [{AKey, NewValue} | Acc]
+      end,
+      [], Vars).
 
 expand_command(TmplName, Env, InFiles, OutFile) ->
     Cmd0 = proplists:get_value(TmplName, Env),
