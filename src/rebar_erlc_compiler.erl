@@ -69,9 +69,13 @@
 
 -spec compile(Config::rebar_config:config(), AppFile::file:filename()) -> 'ok'.
 compile(Config, _AppFile) ->
-    ?DEPRECATED(fail_on_warning, warnings_as_errors,
-                rebar_config:get_list(Config, erl_opts, []),
-                "once OTP R14B03 is released"),
+    %% TODO: enable once leex and yecc gained support for warnings_as_errors
+    %% ?DEPRECATED(fail_on_warning, warnings_as_errors,
+    %%             rebar_config:get_list(Config, xrl_opts, []),
+    %%             "in a future build of rebar"),
+    %% ?DEPRECATED(fail_on_warning, warnings_as_errors,
+    %%             rebar_config:get_list(Config, yrl_opts, []),
+    %%             "in a future build of rebar"),
 
     rebar_base_compiler:run(Config,
                             check_files(rebar_config:get_local(
@@ -251,17 +255,6 @@ internal_erl_compile(Source, Config, Outdir, ErlOpts) ->
             case compile:file(Source, Opts) of
                 {ok, _, []} ->
                     ok;
-                {ok, _, _Warnings} ->
-                    %% We got at least one warning -- if fail_on_warning
-                    %% is in options, fail
-                    case lists:member(fail_on_warning, Opts) of
-                        true ->
-                            %% remove target to prevent overlooking this failure
-                            ok = file:delete(Target),
-                            ?FAIL;
-                        false ->
-                            ok
-                    end;
                 _ ->
                     ?FAIL
             end;
@@ -286,14 +279,14 @@ compile_mib(Source, Target, Config) ->
                   Config::rebar_config:config()) -> 'ok'.
 compile_xrl(Source, Target, Config) ->
     Opts = [{scannerfile, Target}, {return, true}
-            |rebar_config:get(Config, xrl_opts, [])],
+            | rebar_config:get(Config, xrl_opts, [])],
     compile_xrl_yrl(Source, Target, Opts, leex).
 
 -spec compile_yrl(Source::file:filename(), Target::file:filename(),
                   Config::rebar_config:config()) -> 'ok'.
 compile_yrl(Source, Target, Config) ->
     Opts = [{parserfile, Target}, {return, true}
-            |rebar_config:get(Config, yrl_opts, [])],
+            | rebar_config:get(Config, yrl_opts, [])],
     compile_xrl_yrl(Source, Target, Opts, yecc).
 
 -spec compile_xrl_yrl(Source::file:filename(), Target::file:filename(),
@@ -305,6 +298,7 @@ compile_xrl_yrl(Source, Target, Opts, Mod) ->
                 {ok, _, []} ->
                     ok;
                 {ok, _, _Warnings} ->
+                    %% TODO: add warnings_as_errors to leex and yecc
                     case lists:member(fail_on_warning, Opts) of
                         true ->
                             ?FAIL;

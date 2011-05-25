@@ -66,14 +66,6 @@ compile_lfe(Source, Target, Config) ->
             case lfe_comp:file(Source, Opts) of
                 {ok, _, []} ->
                     ok;
-                {ok, _, _Warnings} ->
-                    case lists:member(fail_on_warning, Opts) of
-                        true ->
-                            ok = file:delete(Target),
-                            ?FAIL;
-                        false ->
-                            ok
-                    end;
                 _ ->
                     ?FAIL
             end
