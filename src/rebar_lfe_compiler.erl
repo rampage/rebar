@@ -45,7 +45,7 @@ compile(Config, _AppFile) ->
 %% Internal functions
 %% ===================================================================
 
-compile_lfe(Source, Target, Config) ->
+compile_lfe(Source, _Target, Config) ->
     case code:which(lfe_comp) of
         non_existing ->
             ?CONSOLE(<<
